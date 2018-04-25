@@ -146,6 +146,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="id.h" />
+    <ClInclude Include="sort.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="count.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="printresult.cpp" />
+    <ClCompile Include="scanfdir.cpp" />
+    <ClCompile Include="scanfile.cpp" />
+    <ClCompile Include="similfunction.cpp" />
+    <ClCompile Include="sort.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="sym.txt" />
+    <Text Include="sys.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
