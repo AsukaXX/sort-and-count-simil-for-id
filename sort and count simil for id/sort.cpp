@@ -22,6 +22,7 @@ inline int stringtoint(const string s) {
 Sort::Sort() {
 	ifstream f_sys;
 	string line;
+	cout << "sort!"<< endl;
 	f_sys.open("sys.txt");
 	while (getline(f_sys, line)) {
 		int i = line.find(" ");
@@ -53,34 +54,18 @@ void Sort::wordlist_p(string s) {
 void Sort::sortword() {
 	r_w.first = wordlist.front();
 	wordlist.pop();
-	while (!wordlist.empty()) {
+	while (!r_w.first.empty()) {
 		word = r_w.first;
-		r_w.first = wordlist.front();
-		wordlist.pop();
+		if (!wordlist.empty()) {
+			r_w.first = wordlist.front();
+			wordlist.pop();
+		}
+		else
+			r_w.first.clear();
 		if (judgef())
 			continue;
 		if (judgeou())
 			continue;
-		/*for (char w : word) {
-		if (judgenumber(w)) {
-		if (word_t.size() != 0 && l_w.second == 903) {
-		if (flag["function"] != 0)
-		veri_c.push_back(word_t);
-		else
-		veri.push_back(word_t);
-		word_t.clear();
-		}
-		l_w.first = word;
-		l_w.second = 5;//变量
-		if (flag["function"] != 0) {
-		veri_c.push_back(word);
-		}
-		else
-		veri.push_back(word);
-		word.clear();
-		break;
-		}
-		}*/
 		if (word.empty())
 			continue;
 		if (judges())
@@ -123,43 +108,77 @@ bool Sort::judgef() {
 				l_w.second = 105;
 				return 1;
 			}
-			if (word[0] == '>'&&l_w.second == 105&&flag["headfile"]==0) {
+			if (word[0] == '>'&&l_w.second == 105 && flag["headfile"] == 0) {
 				l_w.first = word;
 				l_w.second = 105;
 				return 1;
 			}
 			s = f_map.find(word);
 			if (s != f_map.end()) {
-				l_w.first = word;
-				l_w.second = s->second;//符号
 				if ((word[0] == '"' || word[0] == '>') && flag["headfile"] == 1)
 					flag["headfile"] = 0;
 				if (word[0] == '(') {
 					stack_f.push_back(word);
 				}
 				if (word[0] == ')') {
+					if (!word_t.empty() && l_w.first[0] == '(') {
+						stack_s.push_back("fu");
+						flag["function"] += 1;
+						fun.push_back(word_t);
+						fun_t = word_t;
+						if (!cla_n.empty())
+							cl_fu.push_back(word_t);
+						word_t.clear();
+					}
 					stack_f.pop_back();
 				}
 				if (word[0] == '{') {
+					if (!cla_t.empty() && flag["enum"] == 0 && flag["cycle"] == 0) {
+						cla_n = cla_t;
+						cla_t.clear();
+						file.open(dir + "\\" + cla_n + "_c.txt", ios::ate);
+						file.close();
+					}
+					if (!fun_t.empty() && flag["enum"] == 0 && flag["cycle"] == 0) {
+						fun_n = fun_t;
+						fun_t.clear();
+						if (!cla_n.empty())
+							fun_n = cla_n + "_" + fun_n;
+						if (!cl_in.empty()) {
+							fun_n = cl_in + "_" + fun_n;
+							cl_in.clear();
+						}
+						file.open(dir + "\\" + fun_n + "_f.txt", ios::ate);
+						file.close();
+					}
 					stack_f.push_back(word);
 				}
 				if (word[0] == '}'&&stack_f.size() != 0) {
 					if (stack_s.back() == "en")
 						flag["enum"] -= 1;
-					if (stack_s.back() == "cl")
+					if (stack_s.back() == "cl") {
 						flag["class"] -= 1;
-					if (stack_s.back() == "fu")
+						file.open(dir + "\\" + cla_n + "_c.txt", ios::app);
+						for (string s : cl_fu)
+							file << s << endl;
+						file.close();
+						cla_n.clear();
+						cl_fu.clear();
+					}
+					if (stack_s.back() == "fu") {
 						flag["function"] -= 1;
+						file.open(dir + "\\" + fun_n + "_f.txt", ios::app);
+						for (string s : fu_vr)
+							file << s << endl;
+						file.close();
+						fun_n.clear();
+						fu_vr.clear();
+					}
 					if (stack_s.back() == "cy")
 						flag["cycle"] -= 1;
 					//cout << flag["class"] << flag["function"] << stack_f.back() << stack_s.back() << endl;
 					stack_f.pop_back();
 					stack_s.pop_back();
-					/*if (flag["class"] == 0) {
-					flag["function"] = 0;
-					stack_s.clear();
-					stack_f.clear();
-					}*/
 
 				}
 				if (word[0] == ';'&&stack_f.size() != 0) {
@@ -175,20 +194,23 @@ bool Sort::judgef() {
 					}
 					//stack_f.pop_back();
 					//}
+					if (flag["class"] == 0)
+						cla_t.clear();
+					if (flag["function"] == 0)
+						fun_t.clear();
 				}
 				if (word_t.size() != 0 && word[0] == ')') {
 					fun.push_back(word_t);
 					flag["function"] += 1;
 					stack_s.push_back("fu");
-
 					word_t.clear();
+					return 1;
 				}
-				return 1;
-			}
-			else {
-				l_w.first = word;
-				l_w.second = 9;//符号
-				return 1;
+				else {
+					l_w.first = word;
+					l_w.second = s->second;//符号
+					return 1;
+				}
 			}
 		}
 	}
@@ -214,11 +236,15 @@ bool Sort::judgecl() {
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			//stack_f.push_back(" ");
+			fun_t = word;
+			if (!cla_n.empty())
+				cl_fu.push_back(word);
 			return 1;
 		}
 		if (l_w.second == 104) {
 			flag["class"] += 1;
 			stack_s.push_back("cl");
+			cla_t = word;
 		}
 		l_w.first = word;
 		l_w.second = 105;//类名
@@ -231,6 +257,7 @@ bool Sort::judgecl() {
 		flag["class"] += 1;
 		stack_s.push_back("cl");
 		//stack_f.push_back(" ");
+		cla_t = word;
 		word.clear();
 		return 1;
 	}
@@ -238,12 +265,20 @@ bool Sort::judgecl() {
 }
 
 bool Sort::judges() {
+	if (flag["enum"] != 0) {
+		l_w.first = word;
+		l_w.second = 5;
+		return 1;
+	}
 	s = sysword.find(word);
 	if (s != sysword.end() && flag["output"] == 0) {
 		if (word_t.size() != 0 && l_w.second == 903) {
 			fun.push_back(word_t);
 			flag["function"] += 1;
 			stack_s.push_back("fu");
+			fun_t = word_t;
+			if (!cla_n.empty())
+				cl_fu.push_back(word_t);
 			word_t.clear();
 		}
 		l_w.first = word;
@@ -258,6 +293,9 @@ bool Sort::judges() {
 			//stack_f.push_back(" ");
 			stack_s.push_back("fu");
 			flag["function"] += 1;
+			fun_t = word;
+			if (!cla_n.empty())
+				cl_fu.push_back(word.append(r_w.first));
 		}
 		if (s->first == "enum") {
 			stack_s.push_back("en");
@@ -278,6 +316,7 @@ bool Sort::judgefu() {
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			//stack_f.push_back(" ");
+			fun_t = word;
 			word.clear();
 			return 1;
 		}
@@ -297,6 +336,13 @@ bool Sort::judgefu() {
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			//stack_f.push_back(" ");
+			if (flag["fuction"] == 0) {
+				fun_t = word;
+				if (!cla_n.empty())
+					cl_fu.push_back(word);
+			}
+			else
+				fu_vr.push_back(word);
 			word.clear();
 			return 1;
 		}
@@ -334,6 +380,16 @@ bool Sort::judgel() {
 }
 
 bool Sort::judgev() {
+	if ((l_w.second == 902 || l_w.second == 911) && r_w.first.size() > 0 && judgeletter(r_w.first[0])) {
+		l_w.first = word;
+		l_w.second = 105;
+		return 1;
+	}
+	if (r_w.first[0] == '&') {
+		l_w.first = word;
+		l_w.second = 105;
+		return 1;
+	}
 	if (flag["headfile"] != 0) {
 		sys.push_back(word);
 		l_w.first = word;
@@ -343,6 +399,9 @@ bool Sort::judgev() {
 	if ((judgeletter(r_w.first[0]) || r_w.first[0] == '&' || r_w.first[0] == '*') && word_t.size() != 0 && l_w.second == 903) {
 		fun.push_back(word_t);
 		flag["function"] += 1;
+		fun_t = word_t;
+		if (!cla_n.empty())
+			cl_fu.push_back(word_t);
 		word_t.clear();
 	}
 	if (flag["function"] != 0) {
@@ -353,6 +412,7 @@ bool Sort::judgev() {
 		veri_c.push_back(word);
 		l_w.first = word;
 		l_w.second = 5;//变量
+		fu_vr.push_back(word);
 		word.clear();
 		return 1;
 	}

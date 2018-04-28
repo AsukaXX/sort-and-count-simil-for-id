@@ -20,11 +20,12 @@ public:
 	void print();
 private:
 	int sum = 0;
+	ofstream file;
 	map<string, int> sysword, f_map, flag;
 	queue<string> wordlist;
-	string word, word_t, dir;
+	string word, word_t, dir, cla_n, cla_t, fun_n, fun_t, cl_in;
 	pair<string, int> l_w, r_w;
-	vector<string> fun, veri, sys, cla, out, veri_c, stack_s, stack_f;
+	vector<string> fun, veri, sys, cla, out, veri_c, stack_s, stack_f, cl_fu, fu_vr;
 	map<string, int>::iterator s;
 	vector<string>::iterator s_v;
 };
