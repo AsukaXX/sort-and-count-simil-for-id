@@ -8,7 +8,7 @@ public:
 	int getsum();
 	string getpath();
 	void dirctory(string path);
-	void wordlist_p(string s);
+	void wordlist_p(string s,int i);
 	void sortword();
 	bool judgef();
 	bool judges();
@@ -19,13 +19,14 @@ public:
 	bool judgev();
 	void print();
 private:
-	int sum = 0;
+	int sum = 0, lines = 0;
 	ofstream file;
 	map<string, int> sysword, f_map, flag;
-	queue<string> wordlist;
+	queue<id_lines> wordlist;
 	string word, word_t, dir, cla_n, cla_t, fun_n, fun_t, cl_in;
 	pair<string, int> l_w, r_w;
-	vector<string> fun, veri, sys, cla, out, veri_c, stack_s, stack_f, cl_fu, fu_vr;
+	vector<string> fun, veri, sys, cla, out, veri_c, stack_s, stack_f, cl_fu, headfile;
+	vector<id_lines> fu_vr;
 	map<string, int>::iterator s;
 	vector<string>::iterator s_v;
 };

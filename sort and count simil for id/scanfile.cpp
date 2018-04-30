@@ -38,13 +38,13 @@ sum_m scanfile(const vector<string> dir) {
 				}
 				else if (line[i] != ' ' && line[i] != '\t'&&line[i] != '\n') {
 					if (word.size() != 0) {
-						s.wordlist_p(word);
+						s.wordlist_p(word,line_s);
 						//cout << word<<endl;
 						createindex(index_m, word, line_s);
 						word.clear();
 					}
 					word.push_back(line[i]);
-					s.wordlist_p(word);
+					s.wordlist_p(word,line_s);
 					//cout << word << endl;
 					//createindex(index_m, word, line_s);
 					word.clear();
@@ -55,7 +55,7 @@ sum_m scanfile(const vector<string> dir) {
 				}
 				else if (word.size() != 0) {
 					word_t = word;
-					s.wordlist_p(word);
+					s.wordlist_p(word,line_s);
 					//cout << word << endl;
 					createindex(index_m, word, line_s);
 					word.clear();
@@ -63,7 +63,7 @@ sum_m scanfile(const vector<string> dir) {
 			}
 			if (word.size() != 0) {
 				word_t = word;
-				s.wordlist_p(word);
+				s.wordlist_p(word,line_s);
 				//cout << word << endl;
 				createindex(index_m, word, line_s);
 				word.clear();

@@ -2,7 +2,7 @@
 
 inline vector<double> readvector(const sum_m path_v) {
 	vector<double> v;
-	for (sum_m_e p : path_v) {
+	for (id_lines p : path_v) {
 		//cout << p.first<<" "<<p.second << endl;
 		v.push_back((double)p.second);
 	}

@@ -14,7 +14,7 @@ void countsimil(const sum_m sum) {
 		dirpath1 = finddir(filepath1);
 		sum1 = s_it1->second;
 		slove_v(dirpath1, path_v1);
-		path_v1.insert(sum_m_e("sum", sum1));
+		path_v1.insert(id_lines("sum", sum1));
 		for (s_it2 = ++s_it1; s_it2 != sum.end(); s_it2++) {
 			filepath2 = s_it2->first;
 			dirpath2 = finddir(filepath2);
@@ -22,7 +22,7 @@ void countsimil(const sum_m sum) {
 			if ((sum1 > sum2 ? (double)sum1 / sum2 : (double)sum2 / sum1) > 0.7) {
 				initialize(path_v2);
 				slove_v(dirpath2, path_v2);
-				path_v2.insert(sum_m_e("sum", sum2));
+				path_v2.insert(id_lines("sum", sum2));
 				c_result = cos_simil(path_v1, path_v2);
 				d_result = dist_simil(path_v1, path_v2);
 				d_2_result = dist_2_simil(path_v1, path_v2);
@@ -40,12 +40,13 @@ void countsimil(const sum_m sum) {
 
 inline void initialize(sum_m& s_m) {
 	s_m.clear();
-	s_m.insert(sum_m_e("classn", 0));
-	s_m.insert(sum_m_e("function", 0));
-	s_m.insert(sum_m_e("output", 0));
-	s_m.insert(sum_m_e("system", 0));
-	s_m.insert(sum_m_e("gol", 0));
-	s_m.insert(sum_m_e("loc", 0));
+	s_m.insert(id_lines("classn", 0));
+	s_m.insert(id_lines("function", 0));
+	s_m.insert(id_lines("output", 0));
+	s_m.insert(id_lines("system", 0));
+	s_m.insert(id_lines("headfile", 0));
+	s_m.insert(id_lines("gol", 0));
+	s_m.insert(id_lines("loc", 0));
 }
 
 inline int inttostring(const string ss) {
@@ -60,6 +61,7 @@ void slove_v(const string path, sum_m& path_v) {
 	enum golb {
 		begin,
 		system,
+		headfile,
 		output,
 		function,
 		classn,
@@ -67,6 +69,7 @@ void slove_v(const string path, sum_m& path_v) {
 	};
 	map<string, golb> count_m;
 	count_m["system"] = system;
+	count_m["headfile"] = headfile;
 	count_m["output"] = output;
 	count_m["function"] = function;
 	count_m["classn"] = classn;
@@ -78,6 +81,10 @@ void slove_v(const string path, sum_m& path_v) {
 		c_sum = line.substr(i + 1, line.size());
 		switch (count_m[c_name]) {
 		case system:
+			inster("gol", inttostring(c_sum), path_v);
+			inster(c_name, inttostring(c_sum), path_v);
+			break;
+		case headfile:
 			inster("gol", inttostring(c_sum), path_v);
 			inster(c_name, inttostring(c_sum), path_v);
 			break;
@@ -104,7 +111,7 @@ inline void inster(const string n, int i, sum_m& path_v) {
 	sum_m::iterator s;
 	s = path_v.find(n);
 	if (s == path_v.end())
-		path_v.insert(sum_m_e(n, i));
+		path_v.insert(id_lines(n, i));
 	else
 		s->second += i;
 }
@@ -141,15 +148,17 @@ void wordsimil(const similpath_v path) {
 		dirpath2 = finddir(filepath2);
 		cout << filepath1 << " " << filepath2 << endl;
 		if (fileempty(dirpath1 + "\\class.txt") && fileempty(dirpath2 + "\\class.txt")) {
-			text_v cla_s, fun_s, ver_s;
+			text_v cla_s, fun_s;
+			text_l_v ver_s1, ver_s2;
 			if (comparetext(dirpath1 + "\\class.txt", dirpath2 + "\\class.txt",cla_s)) {
 				for (string c : cla_s) {
 					if (comparetext(dirpath1 + "\\" + c + "_c.txt", dirpath2 + "\\" + c + "_c.txt", fun_s)) {
 						for (string f : fun_s) {
-							if (comparetext(dirpath1 + "\\" + c + "_" + f + "_f.txt", dirpath1 + "\\" + c + "_" + f + "_f.txt", ver_s)) {
+							if (comparetext(dirpath1 + "\\" + c + "_" + f + "_f.txt", dirpath1 + "\\" + c + "_" + f + "_f.txt", ver_s1,ver_s2)) {
 								cout << c << ":" << f << ":" << endl;
-								print(p, cout, ver_s);
-								ver_s.clear();
+								print(p, cout, ver_s1,ver_s2);
+								ver_s1.clear();
+								ver_s2.clear();
 								//cout << c << " " << f << endl;
 							//else
 								//cout << c << " " << f << endl;
@@ -162,13 +171,15 @@ void wordsimil(const similpath_v path) {
 			}
 		}
 		else {
-			text_v fun_s, ver_s;
+			text_v fun_s;
+			text_l_v ver_s1, ver_s2;
 			if (comparetext(dirpath1 + "\\fuction.txt", dirpath2 + "\\fuction.txt", fun_s)) {
 				for (string f : fun_s) {
-					if (comparetext(dirpath1 + "\\" + f + "_f.txt", dirpath1 + "\\" + f + "_f.txt", ver_s)) {
+					if (comparetext(dirpath1 + "\\" + f + "_f.txt", dirpath1 + "\\" + f + "_f.txt", ver_s1,ver_s2)) {
 						cout << f << ":" << endl;
-						print(p, cout, ver_s);
-						ver_s.clear();
+						print(p, cout, ver_s1,ver_s2);
+						ver_s1.clear();
+						ver_s2.clear();
 						//cout << f << endl;
 					}
 				}
@@ -220,12 +231,28 @@ void wordsimil(const similpath_v path) {
 	}
 }
 
-inline text_v readetext(const string file) {
+inline text_l_v readetext(const string file) {
+	ifstream fs;
+	text_l_v text;
+	id_lines text_l;
+	string line;
+	fs.open(file);
+	while (getline(fs, line)) {
+		int i = line.find(" ");
+		text_l.first = line.substr(0, i);
+		text_l.second = inttostring(line.substr(i+1, line.size()));
+		text.push_back(text_l);
+	}
+	fs.close();
+	return text;
+}
+
+inline text_v readtext(const string file) {
 	ifstream fs;
 	text_v text;
 	string line;
 	fs.open(file);
-	while (getline(fs, line))
+	while (getline(fs, line)) 
 		text.push_back(line);
 	return text;
 }
@@ -242,16 +269,38 @@ inline int fileempty(const string path1) {
 }
 
 
-int comparetext(const string file_l, const string file_r,text_v& same) {
+int comparetext(const string file_l, const string file_r,text_l_v& same1,text_l_v& same2) {
 	ifstream fs;
-	text_v text_l, text_r;
-	text_v::iterator it_t;
+	text_l_v text_l, text_r;
+	id_lines it_t;
 	text_l = readetext(file_l);
 	text_r = readetext(file_r);
 	int dif_n = 0;
+	for (id_lines t : text_l) {
+		it_t = find_t(text_r.begin(), text_r.end(), t.first);
+		if (it_t==id_lines(" ",-1))
+			dif_n++;
+		else {
+			same1.push_back(t);
+			same2.push_back(it_t);
+		}
+	}
+	if ((double)dif_n / (text_l.size() > text_l.size() ? text_l.size() : text_r.size()) > 0.5)
+		return 0;
+	else
+		return 1;
+}
+
+int comparetext(const string file_l, const string file_r, text_v& same) {
+	ifstream fs;
+	text_v text_l, text_r;
+	text_v::iterator it_t;
+	text_l = readtext(file_l);
+	text_r = readtext(file_r);
+	int dif_n = 0;
 	for (string t : text_l) {
 		it_t = find(text_r.begin(), text_r.end(), t);
-		if (it_t == text_r.end())
+		if (it_t == text_l.end())
 			dif_n++;
 		else
 			same.push_back(*it_t);
@@ -262,9 +311,11 @@ int comparetext(const string file_l, const string file_r,text_v& same) {
 		return 1;
 }
 
-/*int compare(const text_v text_l, const text_v text_r) {
-	for (string t : text_l) {
-		if(find(text_r.begin(),text_r.end(),t)!=text_l.end())
-
+inline id_lines find_t(text_l_v::iterator begin, text_l_v::iterator end, const string s) {
+	text_l_v::iterator it;
+	for (it = begin; it != end; it++) {
+		if (it->first == s)
+			return *it;
 	}
-}*/
+	return id_lines(" ",-1);
+}

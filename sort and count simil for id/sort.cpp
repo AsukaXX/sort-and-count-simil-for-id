@@ -28,7 +28,7 @@ Sort::Sort() {
 		int i = line.find(" ");
 		string l = line.substr(0, i);
 		int r = stringtoint(line.substr(i + 1, line.size()));
-		sysword.insert(pair<string, int>(l, r));
+		sysword.insert(id_lines(l, r));
 	}
 	f_sys.close();
 	f_sys.open("sym.txt");
@@ -36,7 +36,7 @@ Sort::Sort() {
 		int i = line.find(" ");
 		string l = line.substr(0, i);
 		int r = stringtoint(line.substr(i + 1, line.size()));
-		f_map.insert(pair<string, int>(l, r));
+		f_map.insert(id_lines(l, r));
 	}
 	f_sys.close();
 	flag["class"] = 0;
@@ -47,17 +47,19 @@ Sort::Sort() {
 	flag["enum"] = 0;
 }
 
-void Sort::wordlist_p(string s) {
-	wordlist.push(s);
+void Sort::wordlist_p(string s,int i) {
+	wordlist.push(id_lines(s,i));
 }
 
 void Sort::sortword() {
-	r_w.first = wordlist.front();
+	r_w.first = wordlist.front().first;
+	lines = wordlist.front().second;
 	wordlist.pop();
 	while (!r_w.first.empty()) {
 		word = r_w.first;
 		if (!wordlist.empty()) {
-			r_w.first = wordlist.front();
+			r_w.first = wordlist.front().first;
+			lines = wordlist.front().second;
 			wordlist.pop();
 		}
 		else
@@ -168,8 +170,8 @@ bool Sort::judgef() {
 					if (stack_s.back() == "fu") {
 						flag["function"] -= 1;
 						file.open(dir + "\\" + fun_n + "_f.txt", ios::app);
-						for (string s : fu_vr)
-							file << s << endl;
+						for (id_lines s : fu_vr)
+							file << s.first<<" "<<s.second << endl;
 						file.close();
 						fun_n.clear();
 						fu_vr.clear();
@@ -206,11 +208,14 @@ bool Sort::judgef() {
 					word_t.clear();
 					return 1;
 				}
-				else {
 					l_w.first = word;
 					l_w.second = s->second;//符号
 					return 1;
-				}
+			}
+			else {
+				l_w.first = word;
+				l_w.second = 9;
+				return 1;
 			}
 		}
 	}
@@ -270,6 +275,12 @@ bool Sort::judgecl() {
 }
 
 bool Sort::judges() {
+	if (flag["headfile"] != 0) {
+		headfile.push_back(word);
+		l_w.first = word;
+		l_w.second = 101;
+		return 1;
+	}
 	if (flag["enum"] != 0) {
 		l_w.first = word;
 		l_w.second = 5;
@@ -345,19 +356,22 @@ bool Sort::judgefu() {
 			return 1;
 		}
 		if ((l_w.second == 913 || l_w.second == 911 || l_w.second == 902) && r_w.first[0] == '(') {
-			fun.push_back(word);
+			//fun.push_back(word);
 			l_w.first = word;
 			l_w.second = 4;//函数名
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			//stack_f.push_back(" ");
-			if (flag["fuction"] == 0) {
-				fun_t = word;
+			if (flag["function"] == 0) {
+				//fun_t = word;
 				if (!cla_n.empty())
 					cl_fu.push_back(word);
+				veri.push_back(word);
 			}
-			else
-				fu_vr.push_back(word);
+			else {
+				fu_vr.push_back(id_lines(word, lines));
+				veri_c.push_back(word);
+			}
 			word.clear();
 			return 1;
 		}
@@ -400,24 +414,23 @@ bool Sort::judgev() {
 		l_w.second = 105;
 		return 1;
 	}
-	if (r_w.first[0] == '&') {
-		l_w.first = word;
-		l_w.second = 105;
-		return 1;
-	}
 	if (flag["headfile"] != 0) {
-		sys.push_back(word);
+		//sys.push_back(word);
 		l_w.first = word;
 		l_w.second = 101;//头文件
+		headfile.push_back(word);
 		return 1;
 	}
 	if ((judgeletter(r_w.first[0]) || r_w.first[0] == '&' || r_w.first[0] == '*') && word_t.size() != 0 && l_w.second == 903) {
+		l_w.first = word;
+		l_w.second = 105;
 		fun.push_back(word_t);
 		flag["function"] += 1;
 		fun_t = word_t;
 		if (!cla_n.empty())
 			cl_fu.push_back(word_t);
 		word_t.clear();
+		return 1;
 	}
 	if (flag["function"] != 0) {
 		if (word_t.size() != 0) {
@@ -427,7 +440,7 @@ bool Sort::judgev() {
 		veri_c.push_back(word);
 		l_w.first = word;
 		l_w.second = 5;//变量
-		fu_vr.push_back(word);
+		fu_vr.push_back(id_lines(word,lines));
 		word.clear();
 		return 1;
 	}
@@ -452,35 +465,40 @@ void Sort::print() {
 	count_f.open(dir + "\\system.txt", ios::ate);
 	for (string s : sys)
 		count_f << s << endl;
-	count_m.insert(sum_m_e("system", sys.size()));
+	count_m.insert(id_lines("system", sys.size()));
 	count_f.close();
 	count_f.open(dir + "\\class.txt", ios::ate);
 	for (string s : cla)
 		count_f << s << endl;
-	count_m.insert(sum_m_e("class", cla.size()));
+	count_m.insert(id_lines("class", cla.size()));
 	count_f.close();
 	count_f.open(dir + "\\fuction.txt", ios::ate);
 	for (string s : fun)
 		count_f << s << endl;
-	count_m.insert(sum_m_e("fuction", fun.size()));
+	count_m.insert(id_lines("fuction", fun.size()));
 	count_f.close();
 	count_f.open(dir + "\\output.txt", ios::ate);
 	for (string s : out)
 		count_f << s << endl;
-	count_m.insert(sum_m_e("output", out.size()));
+	count_m.insert(id_lines("output", out.size()));
 	count_f.close();
 	count_f.open(dir + "\\veriable_l.txt", ios::ate);
 	for (string s : veri_c)
 		count_f << s << endl;
-	count_m.insert(sum_m_e("veriable_l", veri_c.size()));
+	count_m.insert(id_lines("veriable_l", veri_c.size()));
 	count_f.close();
 	count_f.open(dir + "\\veriable_g.txt", ios::ate);
 	for (string s : veri)
 		count_f << s << endl;
-	count_m.insert(sum_m_e("veriable_g", veri.size()));
+	count_m.insert(id_lines("veriable_g", veri.size()));
+	count_f.close();
+	count_f.open(dir + "\\headfile.txt", ios::ate);
+	for (string s : headfile)
+		count_f << s << endl;
+	count_m.insert(id_lines("headfile", headfile.size()));
 	count_f.close();
 	count_f.open(dir + "\\count.txt", ios::ate);
-	for (sum_m_e sum : count_m)
+	for (id_lines sum : count_m)
 		count_f << sum.first << " " << sum.second << endl;
 	cout << "finish" << endl;
 	sum = sys.size() + cla.size() + out.size() + fun.size() + veri_c.size() + veri.size();

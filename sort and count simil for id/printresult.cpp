@@ -1,6 +1,6 @@
 #include"id.h"
 
-ostream& print(const similpath_v_e path, ostream& os, const text_v word) {
+ostream& print(const similpath_v_e path, ostream& os, const text_l_v word1,const text_l_v word2) {
 	ifstream f_c1, f_c2;
 	set<int> index_f1, index_f2;
 	set<string> text1, text2;
