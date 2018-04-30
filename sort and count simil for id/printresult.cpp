@@ -1,9 +1,9 @@
 #include"id.h"
 
-ostream& print(const similpath_v_e path, ostream& os, const set<string> word) {
+ostream& print(const similpath_v_e path, ostream& os, const text_v word) {
 	ifstream f_c1, f_c2;
 	set<int> index_f1, index_f2;
-	vector<string> text1, text2;
+	set<string> text1, text2;
 	string line, dirpath1, dirpath2;
 	dirpath1 = finddir(path.first);
 	dirpath2 = finddir(path.second);
@@ -47,7 +47,7 @@ ostream& print(const similpath_v_e path, ostream& os, const set<string> word) {
 		++line_no;
 		if (index_f1.find(line_no) != index_f1.end()) {
 			erasechar(line, "\t");
-			text1.push_back(line);
+			text1.insert(line);
 		}
 	}
 	f_c1.close();
@@ -57,15 +57,17 @@ ostream& print(const similpath_v_e path, ostream& os, const set<string> word) {
 		++line_no;
 		if (index_f2.find(line_no) != index_f2.end()) {
 			erasechar(line, "\t");
-			text2.push_back(line);
+			//text2.push_back(line);
+			if (text1.find(line) != text1.end())
+				cout << line << endl;
 		}
 	}
 	f_c2.close();
-	if (text1.size() > text2.size())
+	/*if (text1.size() > text2.size())
 		cout << path.first << "                  " << path.second << endl;
 	else 
-		cout << path.second << "                  " << path.first << endl;
-	display(text1, text2);
+		cout << path.second << "                  " << path.first << endl;*/
+	//display(text1, text2);
 	return os;
 }
 
@@ -75,7 +77,7 @@ void erasechar(string& str, const string e_str) {
 		str.erase(0, i);
 }
 
-void display(const vector<string> text1, const vector<string> text2) {
+/*void display(const vector<string> text1, const vector<string> text2) {
 	vector<string>::const_iterator it1, it2;
 	it1 = text1.begin();
 	it2 = text2.begin();
@@ -95,4 +97,4 @@ void display(const vector<string> text1, const vector<string> text2) {
 		if (it2 != text2.end())
 			++it2;
 	}
-}
+}*/

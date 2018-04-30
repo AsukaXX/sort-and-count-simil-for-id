@@ -116,32 +116,78 @@ path_s readfilename(const string p) {
 	f_c.open(p + "\\count.txt");
 	while (getline(f_c, line)) {
 		int i = line.find(" ");
-		f_n.insert(line.substr(0, i));
+		if(inttostring(line.substr(i+1,line.size()))!=0)
+			f_n.insert(line.substr(0, i));
 	}
 	return f_n;
 }
 
 void wordsimil(const similpath_v path) {
 	ifstream c_fs;
-	string id,dirpath1,dirpath2,filepath1,filepath2;
-	int c_s = 0, s_w = 0, s_f = 0,d_f=0;
+	string id,dirpath1,dirpath2,filepath1,filepath2,line;
+	int d_v = 0, s_w = 0, s_f = 0,d_f=0;
 	double	c_f = 0.0;
 	path_s st1, p1, p2, sameword;
 	set<string>::iterator s;
 	path_s::const_iterator p_n;
+	cout << "start" << endl;
 	for (similpath_v_e p : path) {
-		c_s = 0;
+		d_v = 0;
 		s_f = 0;
 		d_f = 0;
 		filepath1 = p.first;
 		filepath2 = p.second;
 		dirpath1 = finddir(filepath1);
 		dirpath2 = finddir(filepath2);
-		p1 = readfilename(dirpath1);
+		cout << filepath1 << " " << filepath2 << endl;
+		if (fileempty(dirpath1 + "\\class.txt") && fileempty(dirpath2 + "\\class.txt")) {
+			text_v cla_s, fun_s, ver_s;
+			if (comparetext(dirpath1 + "\\class.txt", dirpath2 + "\\class.txt",cla_s)) {
+				for (string c : cla_s) {
+					if (comparetext(dirpath1 + "\\" + c + "_c.txt", dirpath2 + "\\" + c + "_c.txt", fun_s)) {
+						for (string f : fun_s) {
+							if (comparetext(dirpath1 + "\\" + c + "_" + f + "_f.txt", dirpath1 + "\\" + c + "_" + f + "_f.txt", ver_s)) {
+								cout << c << ":" << f << ":" << endl;
+								print(p, cout, ver_s);
+								ver_s.clear();
+								//cout << c << " " << f << endl;
+							//else
+								//cout << c << " " << f << endl;
+							}
+						}
+						fun_s.clear();
+					}
+				}
+				cla_s.clear();
+			}
+		}
+		else {
+			text_v fun_s, ver_s;
+			if (comparetext(dirpath1 + "\\fuction.txt", dirpath2 + "\\fuction.txt", fun_s)) {
+				for (string f : fun_s) {
+					if (comparetext(dirpath1 + "\\" + f + "_f.txt", dirpath1 + "\\" + f + "_f.txt", ver_s)) {
+						cout << f << ":" << endl;
+						print(p, cout, ver_s);
+						ver_s.clear();
+						//cout << f << endl;
+					}
+				}
+				fun_s.clear();
+			}
+		}
+		
+
+		/*p1 = readfilename(dirpath1);
 		p2 = readfilename(dirpath2);
 		for (string sf_p : p1) {
 			p_n = p2.find(sf_p);
 			if (p_n != p2.end()) {
+				if (comparetext(dirpath1 + "\\" + sf_p + ".txt", dirpath2 + "\\" + sf_p + ".txt")) {
+					text_v f_l, f_r;
+					f_l = readetext(dirpath1 + "\\" + sf_p + ".txt");
+					f_r = readetext(dirpath2 + "\\" + sf_p + ".txt");
+
+				}
 				c_fs.open(dirpath1 + "\\" + sf_p + ".txt");
 				while (getline(c_fs, id)) {
 					st1.insert(id);
@@ -170,6 +216,55 @@ void wordsimil(const similpath_v path) {
 		//	cout << s << endl;
 		if(d_f==0)
 			print(p, cout, sameword);
-		sameword.clear();
+		sameword.clear();*/
 	}
 }
+
+inline text_v readetext(const string file) {
+	ifstream fs;
+	text_v text;
+	string line;
+	fs.open(file);
+	while (getline(fs, line))
+		text.push_back(line);
+	return text;
+}
+
+inline int fileempty(const string path1) {
+	ifstream fs;
+	fs.open(path1);
+	fs.seekg(0, ios::end);
+	streampos ps = fs.tellg();
+	if ((int)ps==0)
+		return 0;
+	else
+		return 1;
+}
+
+
+int comparetext(const string file_l, const string file_r,text_v& same) {
+	ifstream fs;
+	text_v text_l, text_r;
+	text_v::iterator it_t;
+	text_l = readetext(file_l);
+	text_r = readetext(file_r);
+	int dif_n = 0;
+	for (string t : text_l) {
+		it_t = find(text_r.begin(), text_r.end(), t);
+		if (it_t == text_r.end())
+			dif_n++;
+		else
+			same.push_back(*it_t);
+	}
+	if ((double)dif_n / (text_l.size() > text_l.size() ? text_l.size() : text_r.size()) > 0.5)
+		return 0;
+	else
+		return 1;
+}
+
+/*int compare(const text_v text_l, const text_v text_r) {
+	for (string t : text_l) {
+		if(find(text_r.begin(),text_r.end(),t)!=text_l.end())
+
+	}
+}*/

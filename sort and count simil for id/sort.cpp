@@ -222,6 +222,9 @@ bool Sort::judgecl() {
 	if (s_v != cla.end() && flag["output"] == 0) {
 		if (l_w.second == 917) {
 			fun.push_back(l_w.first.append(word));
+			fun_t = l_w.first;
+			if (!cla_n.empty())
+				cl_fu.push_back(l_w.first);
 			l_w.first = word;
 			l_w.second = 4;//º¯ÊýÃû
 			flag["function"] += 1;
@@ -241,6 +244,8 @@ bool Sort::judgecl() {
 				cl_fu.push_back(word);
 			return 1;
 		}
+		if (r_w.first[0] == ':')
+			cl_in = word;
 		if (l_w.second == 104) {
 			flag["class"] += 1;
 			stack_s.push_back("cl");
@@ -293,9 +298,10 @@ bool Sort::judges() {
 			//stack_f.push_back(" ");
 			stack_s.push_back("fu");
 			flag["function"] += 1;
+			fun.push_back(word);
 			fun_t = word;
 			if (!cla_n.empty())
-				cl_fu.push_back(word.append(r_w.first));
+				cl_fu.push_back(word);
 		}
 		if (s->first == "enum") {
 			stack_s.push_back("en");
@@ -318,6 +324,15 @@ bool Sort::judgefu() {
 			//stack_f.push_back(" ");
 			fun_t = word;
 			word.clear();
+			return 1;
+		}
+		if (l_w.second == 918 && !cl_in.empty() && fun_t.empty()) {
+			l_w.first = word;
+			l_w.second = 4;
+			fun.push_back(word);
+			flag["function"] += 1;
+			stack_s.push_back("fu");
+			fun_t = word;
 			return 1;
 		}
 		if (l_w.second == 105 && r_w.first[0] == '(') {
@@ -431,24 +446,6 @@ bool Sort::judgev() {
 }
 
 void Sort::print() {
-	/*cout << "sys:" << endl;
-	for (string s : sys)
-	cout << s << endl;
-	cout << "fun:" << endl;
-	for (string s : fun)
-	cout << s << endl;
-	cout << "ver:" << endl;
-	for (string s : veri)
-	cout << s << endl;
-	cout << "cla:" << endl;
-	for (string s : cla)
-	cout << s << endl;
-	cout << "out:" << endl;
-	for (string s : out)
-	cout << s << endl;
-	cout << "ver_c:" << endl;
-	for (string s : veri_c)
-	cout << s << endl;*/
 	cout << "wirte" << endl;
 	ofstream count_f;
 	sum_m count_m;

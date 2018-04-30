@@ -18,6 +18,7 @@ using sum_m = map<string, int>;
 using similpath_v_e = pair<string, string>;
 using sum_m_e = pair<string, int>;
 using path_s = set<string>;
+using text_v = vector<string>;
 
 bool judgenumber(char c);
 bool judgeletter(char c);
@@ -34,6 +35,9 @@ inline int inttostring(const string ss);
 inline void inster(const string n, int i, sum_m& path_v);
 void slove_v(const string path, sum_m& path_v);
 void wordsimil(const similpath_v path);
+inline text_v readetext(const string file, const string path);
+inline int fileempty(const string path1);
+int comparetext(const string file_l, const string file_r, text_v& same);
 
 inline vector<double> readvector(const sum_m path_v);
 inline double max_d(const double l, const double r);
@@ -41,6 +45,6 @@ double cos_simil(const sum_m path_v1, const sum_m path_v2);
 double dist_simil(const sum_m path_v1, const sum_m path_v2);
 double dist_2_simil(const sum_m path_v1, const sum_m path_v2);
 
-ostream& print(const similpath_v_e path, ostream& os, const set<string> word);
+ostream& print(const similpath_v_e path, ostream& os, const text_v word);
 void erasechar(string& str, const string e_str);
 void display(const vector<string> text1, const vector<string> text2);
