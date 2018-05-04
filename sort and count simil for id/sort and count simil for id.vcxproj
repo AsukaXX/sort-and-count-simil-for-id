@@ -39,7 +39,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -151,8 +151,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="count.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="printresult.cpp" />
     <ClCompile Include="scanfdir.cpp" />
     <ClCompile Include="scanfile.cpp" />
     <ClCompile Include="similfunction.cpp" />

@@ -32,16 +32,10 @@
     <ClCompile Include="scanfdir.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="count.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="similfunction.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="printresult.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

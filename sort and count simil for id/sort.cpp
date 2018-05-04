@@ -23,7 +23,7 @@ Sort::Sort() {
 	ifstream f_sys;
 	string line;
 	cout << "sort!"<< endl;
-	f_sys.open("sys.txt");
+	f_sys.open("D:/C++/sort and count simil for id/sort and count simil for id/sys.txt");
 	while (getline(f_sys, line)) {
 		int i = line.find(" ");
 		string l = line.substr(0, i);
@@ -31,7 +31,7 @@ Sort::Sort() {
 		sysword.insert(id_lines(l, r));
 	}
 	f_sys.close();
-	f_sys.open("sym.txt");
+	f_sys.open("D:/C++/sort and count simil for id/sort and count simil for id/sym.txt");
 	while (getline(f_sys, line)) {
 		int i = line.find(" ");
 		string l = line.substr(0, i);
@@ -52,6 +52,8 @@ void Sort::wordlist_p(string s,int i) {
 }
 
 void Sort::sortword() {
+	if (wordlist.empty())
+		return;
 	r_w.first = wordlist.front().first;
 	lines = wordlist.front().second;
 	wordlist.pop();
@@ -91,6 +93,13 @@ bool Sort::judgef() {
 					flag["output"] = 0;
 				l_w.first = word;
 				l_w.second = 8;//Êä³ö
+				return 1;
+			}
+			if (word[0] == ':'&&!fun_t.empty()) {
+				fun_t.append("_co");
+				fun.push_back(fun_t);
+				if (!cla_n.empty())
+					cl_fu.push_back(fun_t);
 				return 1;
 			}
 			if ((word[0] == '"' || word[0] == '<') && l_w.second == 101 && flag["headfile"] == 0) {
@@ -138,49 +147,56 @@ bool Sort::judgef() {
 					if (!cla_t.empty() && flag["enum"] == 0 && flag["cycle"] == 0) {
 						cla_n = cla_t;
 						cla_t.clear();
-						file.open(dir + "\\" + cla_n + "_c.txt", ios::ate);
+						file.open(dir + "/" + cla_n + "_c.txt", ios::ate);
 						file.close();
 					}
 					if (!fun_t.empty() && flag["enum"] == 0 && flag["cycle"] == 0) {
 						fun_n = fun_t;
 						fun_t.clear();
-						if (!cla_n.empty())
+						if (!cla_n.empty()) {
+							if (fun_n == cla_n) {
+								fun.push_back(fun_n);
+								cl_fu.push_back(fun_n);
+							}
 							fun_n = cla_n + "_" + fun_n;
+						}
 						if (!cl_in.empty()) {
 							fun_n = cl_in + "_" + fun_n;
 							cl_in.clear();
 						}
-						file.open(dir + "\\" + fun_n + "_f.txt", ios::ate);
+						file.open(dir + "/" + fun_n + "_f.txt", ios::ate);
 						file.close();
 					}
 					stack_f.push_back(word);
 				}
-				if (word[0] == '}'&&stack_f.size() != 0) {
-					if (stack_s.back() == "en")
-						flag["enum"] -= 1;
-					if (stack_s.back() == "cl") {
-						flag["class"] -= 1;
-						file.open(dir + "\\" + cla_n + "_c.txt", ios::app);
-						for (string s : cl_fu)
-							file << s << endl;
-						file.close();
-						cla_n.clear();
-						cl_fu.clear();
+				if (word[0] == '}' && stack_f.size() != 0) {
+					if (stack_s.size() != 0) {
+						if (stack_s.back() == "en")
+							flag["enum"] -= 1;
+						if (stack_s.back() == "cl") {
+							flag["class"] -= 1;
+							file.open(dir + "/" + cla_n + "_c.txt", ios::app);
+							for (string s : cl_fu)
+								file << s << endl;
+							file.close();
+							cla_n.clear();
+							cl_fu.clear();
+						}
+						if (stack_s.back() == "fu") {
+							flag["function"] -= 1;
+							file.open(dir + "/" + fun_n + "_f.txt", ios::app);
+							for (id_lines s : fu_vr)
+								file << s.first << " " << s.second << endl;
+							file.close();
+							fun_n.clear();
+							fu_vr.clear();
+						}
+						if (stack_s.back() == "cy")
+							flag["cycle"] -= 1;
+						//cout << flag["class"] << flag["function"] << stack_f.back() << stack_s.back() << endl;
+						stack_s.pop_back();
 					}
-					if (stack_s.back() == "fu") {
-						flag["function"] -= 1;
-						file.open(dir + "\\" + fun_n + "_f.txt", ios::app);
-						for (id_lines s : fu_vr)
-							file << s.first<<" "<<s.second << endl;
-						file.close();
-						fun_n.clear();
-						fu_vr.clear();
-					}
-					if (stack_s.back() == "cy")
-						flag["cycle"] -= 1;
-					//cout << flag["class"] << flag["function"] << stack_f.back() << stack_s.back() << endl;
 					stack_f.pop_back();
-					stack_s.pop_back();
 
 				}
 				if (word[0] == ';'&&stack_f.size() != 0) {
@@ -238,15 +254,20 @@ bool Sort::judgecl() {
 			return 1;
 		}
 		if (r_w.first[0] == '(') {
-			fun.push_back(word);
+			if (!cla_n.empty() && word == cla_n) {
+				flag["function"] += 1;
+				stack_s.push_back("fu");
+				fun_t = word;
+			}
+
 			l_w.first = word;
 			l_w.second = 4;//º¯ÊýÃû
-			flag["function"] += 1;
-			stack_s.push_back("fu");
+			//flag["function"] += 1;
+			//stack_s.push_back("fu");
 			//stack_f.push_back(" ");
-			fun_t = word;
-			if (!cla_n.empty())
-				cl_fu.push_back(word);
+			//word_t = word;
+			//if (!cla_n.empty())
+				//cl_fu.push_back(word);
 			return 1;
 		}
 		if (r_w.first[0] == ':')
@@ -334,6 +355,8 @@ bool Sort::judgefu() {
 			stack_s.push_back("fu");
 			//stack_f.push_back(" ");
 			fun_t = word;
+			if (!cla_n.empty())
+				cl_fu.push_back(word);
 			word.clear();
 			return 1;
 		}
@@ -462,42 +485,42 @@ void Sort::print() {
 	cout << "wirte" << endl;
 	ofstream count_f;
 	sum_m count_m;
-	count_f.open(dir + "\\system.txt", ios::ate);
+	count_f.open(dir + "/system.txt", ios::ate);
 	for (string s : sys)
 		count_f << s << endl;
 	count_m.insert(id_lines("system", sys.size()));
 	count_f.close();
-	count_f.open(dir + "\\class.txt", ios::ate);
+	count_f.open(dir + "/class.txt", ios::ate);
 	for (string s : cla)
 		count_f << s << endl;
 	count_m.insert(id_lines("class", cla.size()));
 	count_f.close();
-	count_f.open(dir + "\\fuction.txt", ios::ate);
+	count_f.open(dir + "/fuction.txt", ios::ate);
 	for (string s : fun)
 		count_f << s << endl;
 	count_m.insert(id_lines("fuction", fun.size()));
 	count_f.close();
-	count_f.open(dir + "\\output.txt", ios::ate);
+	count_f.open(dir + "/output.txt", ios::ate);
 	for (string s : out)
 		count_f << s << endl;
 	count_m.insert(id_lines("output", out.size()));
 	count_f.close();
-	count_f.open(dir + "\\veriable_l.txt", ios::ate);
+	count_f.open(dir + "/veriable_l.txt", ios::ate);
 	for (string s : veri_c)
 		count_f << s << endl;
 	count_m.insert(id_lines("veriable_l", veri_c.size()));
 	count_f.close();
-	count_f.open(dir + "\\veriable_g.txt", ios::ate);
+	count_f.open(dir + "/veriable_g.txt", ios::ate);
 	for (string s : veri)
 		count_f << s << endl;
 	count_m.insert(id_lines("veriable_g", veri.size()));
 	count_f.close();
-	count_f.open(dir + "\\headfile.txt", ios::ate);
+	count_f.open(dir + "/headfile.txt", ios::ate);
 	for (string s : headfile)
 		count_f << s << endl;
 	count_m.insert(id_lines("headfile", headfile.size()));
 	count_f.close();
-	count_f.open(dir + "\\count.txt", ios::ate);
+	count_f.open(dir + "/count.txt", ios::ate);
 	for (id_lines sum : count_m)
 		count_f << sum.first << " " << sum.second << endl;
 	cout << "finish" << endl;

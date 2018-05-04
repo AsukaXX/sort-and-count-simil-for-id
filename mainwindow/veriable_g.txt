@@ -1,0 +1,9 @@
+mainwindow
+mainwindow
+QWidget
+parent
+QMainWindow
+parent
+ui
+mainwindow
+mainwindow

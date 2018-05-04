@@ -22,7 +22,7 @@ sum_m scanfile(const vector<string> dir) {
 	sum_m pathsum;
 	for (string path : dir) {
 		//path = "D:\\C++\\serach\\serach\\simil_fuction.cpp";
-		cout << path << endl;
+		//cout << path << endl;
 		Sort s;
 		int line_s = 0;
 		c_f.open(path);

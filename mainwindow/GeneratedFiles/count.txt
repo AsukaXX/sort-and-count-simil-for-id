@@ -1,0 +1,7 @@
+class 0
+fuction 0
+headfile 0
+output 0
+system 10
+veriable_g 91
+veriable_l 0

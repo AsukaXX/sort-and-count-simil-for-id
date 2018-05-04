@@ -1,0 +1,6 @@
+filepath 24
+filepath 25
+substr 25
+0 25
+filepath 25
+rfind 25

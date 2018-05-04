@@ -1,0 +1,16 @@
+sum_m 3
+path_v 3
+v 4
+id_lines 5
+p 5
+path_v 5
+p 6
+first 6
+p 6
+second 6
+endl 6
+v 7
+push_back 7
+p 7
+second 7
+v 9

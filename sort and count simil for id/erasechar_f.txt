@@ -1,0 +1,12 @@
+str 78
+e_str 78
+i 79
+str 79
+find_first_not_of 79
+e_str 79
+i 80
+npos 80
+str 81
+erase 81
+0 81
+i 81
