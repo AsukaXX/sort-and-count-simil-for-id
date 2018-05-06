@@ -42,7 +42,7 @@ inline text_v readetext(const string file, const string path);
 inline text_l_v readetext(const string file);
 inline int fileempty(const string path1);
 int comparetext(const string file_l, const string file_r, text_v& same);
-int comparetext(const string file_l, const string file_r, text_l_v& same1, text_l_v& same2);
+//int comparetext(const string file_l, const string file_r, text_l_v& same1, text_l_v& same2);
 inline text_l_v::iterator find_t(text_l_v::iterator begin, text_l_v::iterator end, const string s);
 
 inline vector<double> readvector(const sum_m path_v);

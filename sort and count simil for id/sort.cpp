@@ -297,7 +297,7 @@ bool Sort::judgecl() {
 
 bool Sort::judges() {
 	if (flag["headfile"] != 0) {
-		headfile.push_back(word);
+		headfile.push_back(id_lines(word,lines));
 		l_w.first = word;
 		l_w.second = 101;
 		return 1;
@@ -441,7 +441,7 @@ bool Sort::judgev() {
 		//sys.push_back(word);
 		l_w.first = word;
 		l_w.second = 101;//Í·ÎÄ¼þ
-		headfile.push_back(word);
+		headfile.push_back(id_lines(word,lines));
 		return 1;
 	}
 	if ((judgeletter(r_w.first[0]) || r_w.first[0] == '&' || r_w.first[0] == '*') && word_t.size() != 0 && l_w.second == 903) {
@@ -516,8 +516,8 @@ void Sort::print() {
 	count_m.insert(id_lines("veriable_g", veri.size()));
 	count_f.close();
 	count_f.open(dir + "/headfile.txt", ios::ate);
-	for (string s : headfile)
-		count_f << s << endl;
+	for (id_lines s : headfile)
+		count_f << s.first <<" "<< s.second << endl;
 	count_m.insert(id_lines("headfile", headfile.size()));
 	count_f.close();
 	count_f.open(dir + "/count.txt", ios::ate);
