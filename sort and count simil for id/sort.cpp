@@ -305,6 +305,8 @@ bool Sort::judges() {
 	if (flag["enum"] != 0) {
 		l_w.first = word;
 		l_w.second = 5;
+		if (!fun_n.empty())
+			fu_vr.push_back(id_lines(word, lines));
 		return 1;
 	}
 	s = sysword.find(word);
@@ -321,10 +323,14 @@ bool Sort::judges() {
 		l_w.first = word;
 		l_w.second = s->second;//系统保留字
 		sys.push_back(word);
+		if (!fun_n.empty())
+			fu_vr.push_back(id_lines(word, lines));
 		if (s->second == 106) {
 			//stack_f.push_back(" ");
 			stack_s.push_back("cy");
 			flag["cycle"] += 1;
+			if (!fun_n.empty())
+				fu_vr.push_back(id_lines(word, lines));
 		}
 		if (s->second == 109) {
 			//stack_f.push_back(" ");
@@ -414,6 +420,8 @@ bool Sort::judgeou() {
 		out.push_back(word);
 		l_w.first = word;
 		l_w.second = 8;//输出
+		if (!fun_n.empty())
+			fu_vr.push_back(id_lines(word, lines));
 		word.clear();
 		return 1;
 	}

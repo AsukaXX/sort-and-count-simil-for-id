@@ -20,6 +20,8 @@ sum_m scanfile(const vector<string> dir) {
 	index index_m;
 	index_it index_it;
 	sum_m pathsum;
+	text_l_v note;
+	int flag = 0;
 	for (string path : dir) {
 		//path = "D:\\C++\\serach\\serach\\simil_fuction.cpp";
 		//cout << path << endl;
@@ -30,6 +32,15 @@ sum_m scanfile(const vector<string> dir) {
 		while (getline(c_f, line)) {
 			++line_s;
 			for (int i = 0; i < (int)line.size(); ++i) {
+				if (flag == 1 && line[i] == '*'&&line[i + 1] == '/') {
+					flag = 0;
+					i += 2;
+					continue;
+				}
+				if (flag == 1) {
+					word_t.push_back(line[i]);
+					continue;
+				}
 				if (judgeletter(line[i])) {
 					word.push_back(line[i]);
 				}
@@ -43,30 +54,32 @@ sum_m scanfile(const vector<string> dir) {
 						createindex(index_m, word, line_s);
 						word.clear();
 					}
+					if(line[i] == '/'&&line[i + 1] == '/') {
+						word_t = line.substr(i + 2);
+						break;
+					}
+					if (line[i] == '/'&&line[i + 1] == '*') {
+						flag = 1;
+						i++;
+						continue;
+					}
 					word.push_back(line[i]);
 					s.wordlist_p(word,line_s);
 					//cout << word << endl;
 					//createindex(index_m, word, line_s);
 					word.clear();
 				}
-				else if (line[i] == '/'&&line[i + 1] == '/') {
-					word_t = line.substr(i + 2);
-					continue;
-				}
 				else if (word.size() != 0) {
-					word_t = word;
+					//word_t = word;
 					s.wordlist_p(word,line_s);
 					//cout << word << endl;
 					createindex(index_m, word, line_s);
 					word.clear();
 				}
 			}
-			if (word.size() != 0) {
-				word_t = word;
-				s.wordlist_p(word,line_s);
-				//cout << word << endl;
-				createindex(index_m, word, line_s);
-				word.clear();
+			if (word_t.size() != 0) {
+				note.push_back(id_lines(word_t, line_s));
+				word_t.clear();
 			}
 		}
 		c_f.close();
@@ -79,6 +92,12 @@ sum_m scanfile(const vector<string> dir) {
 		}
 		i_f.close();
 		index_m.clear();
+		i_f.open(s.getpath() + "/note.txt", ios::ate);
+		for (id_lines is : note) {
+			i_f << is.first << " " << is.second << endl;
+		}
+		i_f.close();
+		note.clear();
 		s.sortword();
 		s.print();
 		pathsum.insert(make_pair(path,s.getsum()));
