@@ -29,7 +29,7 @@ void countsimil(const sum_m sum,similpath_v& similpath) {
 				//cout << filepath1 << " " << filepath2 << endl;
 				//cout << c_result << " " << d_result << " " << d_2_result << endl;
 			}
-			if (c_result > 0.99||d_result > 0.1||d_2_result > 0.5) {
+			if (c_result > 0.99 || d_result > 0.01 || d_2_result > 0.5) {
 				//cout << filepath1 << " " << filepath2 << endl;
 				similpath.push_back(similpath_v_e(filepath1, filepath2));
 			}

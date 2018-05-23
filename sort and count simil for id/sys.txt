@@ -42,3 +42,4 @@ protect 108
 operator 109
 cout 110
 cin 110
+friend 111

@@ -23,10 +23,10 @@ private:
 	ofstream file;
 	map<string, int> sysword, f_map, flag;
 	queue<id_lines> wordlist;
-	string word, word_t, dir, cla_n, cla_t, fun_n, fun_t, cl_in;
+	string word, word_t, dir, cla_n, cla_t, fun_n, fun_t, cl_in , k_fu;
 	pair<string, int> l_w, r_w;
 	vector<string> fun, veri, sys, cla, out, veri_c, stack_s, stack_f, cl_fu;
-	vector<id_lines> fu_vr, headfile;
+	vector<id_lines> fu_vr, headfile, cl_v;
 	map<string, int>::iterator s;
 	vector<string>::iterator s_v;
 };

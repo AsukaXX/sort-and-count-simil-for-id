@@ -32,7 +32,10 @@ double dist_simil(const sum_m path_v1, const sum_m path_v2) {
 	for (int i = 0; i < (int)v1.size(); i++) {
 		sum += pow(v1[i] - v2[i], 2);
 	}
-	d_result = 1.0f / (1 + sqrt(sum));
+	if (sqrt(sum) == 0)
+		d_result = 0;
+	else
+		d_result = 1.0f/sqrt(sum);
 	return d_result;
 }
 

@@ -38,12 +38,13 @@ inline int inttostring(const string ss);
 inline void inster(const string n, int i, sum_m& path_v);
 void slove_v(const string path, sum_m& path_v);
 //void wordsimil(const similpath_v path,result& similresult);
-inline text_v readetext(const string file, const string path);
+inline text_v readtext(const string file);
 inline text_l_v readetext(const string file);
 inline int fileempty(const string path1);
 int comparetext(const string file_l, const string file_r, text_v& same);
 //int comparetext(const string file_l, const string file_r, text_l_v& same1, text_l_v& same2);
 inline text_l_v::iterator find_t(text_l_v::iterator begin, text_l_v::iterator end, const string s);
+inline void readnote(string dirpath, set<int>& note_lines);
 
 inline vector<double> readvector(const sum_m path_v);
 inline double max_d(const double l, const double r);

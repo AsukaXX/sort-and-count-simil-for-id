@@ -45,6 +45,7 @@ Sort::Sort() {
 	flag["cycle"] = 0;
 	flag["headfile"] = 0;
 	flag["enum"] = 0;
+	flag["friend"] = 0;
 }
 
 void Sort::wordlist_p(string s,int i) {
@@ -95,13 +96,6 @@ bool Sort::judgef() {
 				l_w.second = 8;//输出
 				return 1;
 			}
-			if (word[0] == ':'&&!fun_t.empty()) {
-				fun_t.append("_co");
-				fun.push_back(fun_t);
-				if (!cla_n.empty())
-					cl_fu.push_back(fun_t);
-				return 1;
-			}
 			if ((word[0] == '"' || word[0] == '<') && l_w.second == 101 && flag["headfile"] == 0) {
 				l_w.first = word;
 				l_w.second = 101;
@@ -115,12 +109,12 @@ bool Sort::judgef() {
 				return 1;
 			}
 			if (word[0] == '&'&&l_w.second == 105) {
-				l_w.first = word;
+				l_w.first.append(word);
 				l_w.second = 105;
 				return 1;
 			}
 			if (word[0] == '>'&&l_w.second == 105 && flag["headfile"] == 0) {
-				l_w.first = word;
+				l_w.first.append(word);
 				l_w.second = 105;
 				return 1;
 			}
@@ -135,10 +129,7 @@ bool Sort::judgef() {
 					if (!word_t.empty() && l_w.first[0] == '(') {
 						stack_s.push_back("fu");
 						flag["function"] += 1;
-						fun.push_back(word_t);
 						fun_t = word_t;
-						if (!cla_n.empty())
-							cl_fu.push_back(word_t);
 						word_t.clear();
 					}
 					stack_f.pop_back();
@@ -153,11 +144,9 @@ bool Sort::judgef() {
 					if (!fun_t.empty() && flag["enum"] == 0 && flag["cycle"] == 0) {
 						fun_n = fun_t;
 						fun_t.clear();
-						if (!cla_n.empty()) {
-							if (fun_n == cla_n) {
-								fun.push_back(fun_n);
-								cl_fu.push_back(fun_n);
-							}
+						fun.push_back(k_fu+fun_n);
+						if (!cla_n.empty()&&flag["friend"]==0) {
+							cl_fu.push_back(k_fu+fun_n);
 							fun_n = cla_n + "_" + fun_n;
 						}
 						if (!cl_in.empty()) {
@@ -168,6 +157,9 @@ bool Sort::judgef() {
 						file.close();
 					}
 					stack_f.push_back(word);
+					if (flag["friend"] == 1)
+						flag["friend"] = 0;
+					k_fu.clear();
 				}
 				if (word[0] == '}' && stack_f.size() != 0) {
 					if (stack_s.size() != 0) {
@@ -179,8 +171,13 @@ bool Sort::judgef() {
 							for (string s : cl_fu)
 								file << s << endl;
 							file.close();
+							file.open(dir + "/" + cla_n + "_v.txt", ios::ate);
+							for (id_lines s : cl_v)
+								file << s.first<<" "<<s.second << endl;
+							file.close();
 							cla_n.clear();
 							cl_fu.clear();
+							cl_v.clear();
 						}
 						if (stack_s.back() == "fu") {
 							flag["function"] -= 1;
@@ -190,6 +187,7 @@ bool Sort::judgef() {
 							file.close();
 							fun_n.clear();
 							fu_vr.clear();
+							cl_in.clear();
 						}
 						if (stack_s.back() == "cy")
 							flag["cycle"] -= 1;
@@ -199,26 +197,35 @@ bool Sort::judgef() {
 					stack_f.pop_back();
 
 				}
-				if (word[0] == ';'&&stack_f.size() != 0) {
+				if (word[0] == ';'&&stack_s.size() != 0) {
 					//if(stack_f.back()!="("){
 					while (stack_f.size() < stack_s.size()) {
 						if (stack_s.back() == "cl")
 							flag["class"] -= 1;
-						if (stack_s.back() == "fu")
+						if (stack_s.back() == "fu") {
+							if (!fun_t.empty()) {
+								if (!cla_n.empty()&&flag["friend"]==0)
+									cl_fu.push_back(k_fu+fun_t);
+								fun.push_back(k_fu+fun_t);
+								k_fu.clear();
+							}
 							flag["function"] -= 1;
+						}
 						if (stack_s.back() == "cy")
 							flag["cycle"] -= 1;
 						stack_s.pop_back();
 					}
 					//stack_f.pop_back();
 					//}
+					if (flag["friend"] == 1)
+						flag["friend"] = 0;
 					if (flag["class"] == 0)
 						cla_t.clear();
 					if (flag["function"] == 0)
 						fun_t.clear();
 				}
 				if (word_t.size() != 0 && word[0] == ')') {
-					fun.push_back(word_t);
+					
 					flag["function"] += 1;
 					stack_s.push_back("fu");
 					word_t.clear();
@@ -242,10 +249,7 @@ bool Sort::judgecl() {
 	s_v = find(cla.begin(), cla.end(), word);
 	if (s_v != cla.end() && flag["output"] == 0) {
 		if (l_w.second == 917) {
-			fun.push_back(l_w.first.append(word));
-			fun_t = l_w.first;
-			if (!cla_n.empty())
-				cl_fu.push_back(l_w.first);
+			fun_t = l_w.first.append(word);
 			l_w.first = word;
 			l_w.second = 4;//函数名
 			flag["function"] += 1;
@@ -253,13 +257,17 @@ bool Sort::judgecl() {
 			//stack_f.push_back(" ");
 			return 1;
 		}
-		if (r_w.first[0] == '(') {
-			if (!cla_n.empty() && word == cla_n) {
-				flag["function"] += 1;
-				stack_s.push_back("fu");
+		if (!fun_t.empty() && flag["function"] != 0 && l_w.first != ":") {
+			if (fun_t.rfind("_co") != string::npos)
+				fun_t.append("1");
+		}
+		if (r_w.first[0] == '(' && flag["function"] == 0) {
+			if ((word == cl_in || word == cla_n))
+				fun_t = word + "_co";
+			else
 				fun_t = word;
-			}
-
+			flag["function"] += 1;
+			stack_s.push_back("fu");
 			l_w.first = word;
 			l_w.second = 4;//函数名
 			//flag["function"] += 1;
@@ -292,6 +300,9 @@ bool Sort::judgecl() {
 		word.clear();
 		return 1;
 	}
+	if (l_w.second == 105 && r_w.first[0] == ':') {
+		cl_in = word;
+	}
 	return 0;
 }
 
@@ -312,12 +323,9 @@ bool Sort::judges() {
 	s = sysword.find(word);
 	if (s != sysword.end() && flag["output"] == 0) {
 		if (word_t.size() != 0 && l_w.second == 903) {
-			fun.push_back(word_t);
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			fun_t = word_t;
-			if (!cla_n.empty())
-				cl_fu.push_back(word_t);
 			word_t.clear();
 		}
 		l_w.first = word;
@@ -336,14 +344,14 @@ bool Sort::judges() {
 			//stack_f.push_back(" ");
 			stack_s.push_back("fu");
 			flag["function"] += 1;
-			fun.push_back(word);
 			fun_t = word;
-			if (!cla_n.empty())
-				cl_fu.push_back(word);
 		}
 		if (s->first == "enum") {
 			stack_s.push_back("en");
 			flag["enum"] += 1;
+		}
+		if (s->first == "friend" && (l_w.first == ";"||l_w.first=="{"||l_w.first==":")) {
+			flag["friend"] = 1;
 		}
 		return 1;
 	}
@@ -356,26 +364,23 @@ bool Sort::judgefu() {
 		if (s_v != fun.end()) {
 			l_w.first = word;
 			l_w.second = 4;//函数名
-			fun.push_back(word);
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			//stack_f.push_back(" ");
 			fun_t = word;
-			if (!cla_n.empty())
-				cl_fu.push_back(word);
 			word.clear();
 			return 1;
 		}
 		if (l_w.second == 918 && !cl_in.empty() && fun_t.empty()) {
 			l_w.first = word;
 			l_w.second = 4;
-			fun.push_back(word);
 			flag["function"] += 1;
 			stack_s.push_back("fu");
 			fun_t = word;
 			return 1;
 		}
 		if (l_w.second == 105 && r_w.first[0] == '(') {
+			k_fu = l_w.first+" ";
 			l_w.first = word;
 			l_w.second = 20;//函数名或变量名
 							//stack_s.push_back("fu");
@@ -393,8 +398,9 @@ bool Sort::judgefu() {
 			//stack_f.push_back(" ");
 			if (flag["function"] == 0) {
 				//fun_t = word;
-				if (!cla_n.empty())
-					cl_fu.push_back(word);
+				if (flag["class"] != 0) {
+					cl_v.push_back(make_pair(word, lines));
+				}
 				veri.push_back(word);
 			}
 			else {
@@ -440,7 +446,7 @@ bool Sort::judgel() {
 }
 
 bool Sort::judgev() {
-	if ((l_w.second == 902 || l_w.second == 911) && r_w.first.size() > 0 && judgeletter(r_w.first[0])) {
+	if ((l_w.second == 902 || l_w.second == 911 || l_w.second == 910) && r_w.first.size() > 0 && judgeletter(r_w.first[0])) {
 		l_w.first = word;
 		l_w.second = 105;
 		return 1;
@@ -449,17 +455,15 @@ bool Sort::judgev() {
 		//sys.push_back(word);
 		l_w.first = word;
 		l_w.second = 101;//头文件
-		headfile.push_back(id_lines(word,lines));
+		if(word!="h")
+			headfile.push_back(id_lines(word,lines));
 		return 1;
 	}
 	if ((judgeletter(r_w.first[0]) || r_w.first[0] == '&' || r_w.first[0] == '*') && word_t.size() != 0 && l_w.second == 903) {
 		l_w.first = word;
 		l_w.second = 105;
-		fun.push_back(word_t);
 		flag["function"] += 1;
 		fun_t = word_t;
-		if (!cla_n.empty())
-			cl_fu.push_back(word_t);
 		word_t.clear();
 		return 1;
 	}
@@ -480,6 +484,8 @@ bool Sort::judgev() {
 			veri.push_back(word_t);
 			word_t.clear();
 		}
+		if (!cla_n.empty())
+			cl_v.push_back(make_pair(word, lines));
 		veri.push_back(word);
 		l_w.first = word;
 		l_w.second = 5;//变量
@@ -532,7 +538,7 @@ void Sort::print() {
 	for (id_lines sum : count_m)
 		count_f << sum.first << " " << sum.second << endl;
 	cout << "finish" << endl;
-	sum = sys.size() + cla.size() + out.size() + fun.size() + veri_c.size() + veri.size();
+	sum = (int)(sys.size() + cla.size() + out.size() + fun.size() + veri_c.size() + veri.size());
 	//cout << flag["class"] << flag["function"] << stack_f.back() << stack_s.back() << endl;
 }
 
